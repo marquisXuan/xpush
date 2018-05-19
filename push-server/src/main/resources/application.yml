@@ -1,0 +1,3 @@
+netty:
+  websocket:
+    port: 9999
