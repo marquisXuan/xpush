@@ -1,0 +1,9 @@
+netty:
+  # 服务器地址
+  host: 127.0.0.1
+  # 端口号
+  port: 9999
+  websocket:
+    # 此处服务器的路径其实是 ws://127.0.0.1:9999/web_socket/${userName}
+    url: web_socket
+    user_name: tdg_yyx

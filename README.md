@@ -50,5 +50,13 @@
 
 [博文路径](https://my.oschina.net/yzwjyw/blog/1816270)
 
-[联系方式](tdg_yyx@foxmail.com)
+## 随意随意
+
+![随意随意](http://app.hartedu.com/file/cant_delete.jpg)
+
+#### 作者QQ: 562638362
+
+#### 作者邮箱：tdg_yyx@foxmail.com
+
+
 
