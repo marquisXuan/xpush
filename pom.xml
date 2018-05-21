@@ -13,6 +13,7 @@
 
     <modules>
         <module>push-server</module>
+        <module>push-client</module>
     </modules>
 
     <parent>

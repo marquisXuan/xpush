@@ -1,6 +1,8 @@
-package org.yyx.message.push.server.util;
+package org.yyx.message.push.push.client.util;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
@@ -12,7 +14,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * WebSocket用户集
+ * WebSocket客户端用户集
  */
 public class WebSocketUsers {
 
@@ -26,15 +28,6 @@ public class WebSocketUsers {
      * Concat at tdg_yyx@foxmail.com
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketUsers.class);
-
-    private static WebSocketUsers ourInstance = new WebSocketUsers();
-
-    private WebSocketUsers() {
-    }
-
-    public static WebSocketUsers getInstance() {
-        return ourInstance;
-    }
 
     /**
      * 存储通道
@@ -77,12 +70,19 @@ public class WebSocketUsers {
      * @param key 键
      */
     public static boolean remove(String key) {
-        Channel remove = USERS.remove(key);
-        boolean containsValue = USERS.containsValue(remove);
         LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                "\t├ [移出结果]: {}\n" +
-                "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", containsValue ? "失败" : "成功");
-        return containsValue;
+                "\t├ [移出用户]: {}\n" +
+                "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", key);
+        Channel remove = USERS.remove(key);
+        if (remove != null) {
+            boolean containsValue = USERS.containsValue(remove);
+            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
+                    "\t├ [移出结果]: {}\n" +
+                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", containsValue ? "失败" : "成功");
+            return containsValue;
+        } else
+            return true;
+
     }
 
     /**
@@ -95,14 +95,14 @@ public class WebSocketUsers {
     }
 
     /**
-     * 群发消息
+     * 群发消息 通过二进制的方式
      *
      * @param message 消息内容
      */
-    public static void sendMessageToUsers(String message) {
+    public static void sendMessageToUsersByBinary(ByteBuf message) {
         Collection<Channel> values = USERS.values();
         for (Channel value : values) {
-            value.write(new TextWebSocketFrame(message));
+            value.write(new BinaryWebSocketFrame(message));
             value.flush();
         }
     }
@@ -110,14 +110,36 @@ public class WebSocketUsers {
     /**
      * 给某个人发送消息
      *
-     * @param userName key
+     * @param userName 当前客户端已经存储的用户key
      * @param message  消息
      */
-    public static void sendMessageToUser(String userName, String message) {
+    public static void sendMessageToUserByBinary(String userName, ByteBuf message) {
+        Channel channel = USERS.get(userName);
+        if (channel != null) {
+            channel.write(new BinaryWebSocketFrame(message));
+            channel.flush();
+        } else {
+            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
+                    "\t├ [你已离线]\n" +
+                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓");
+        }
+    }
+
+    /**
+     * 发送文本消息
+     *
+     * @param userName 自己的用户名
+     * @param message  消息内容
+     */
+    public static void sendMessageToUserByText(String userName, String message) {
         Channel channel = USERS.get(userName);
         if (channel != null) {
             channel.write(new TextWebSocketFrame(message));
             channel.flush();
+        } else {
+            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
+                    "\t├ [你已离线]\n" +
+                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓");
         }
     }
 }
