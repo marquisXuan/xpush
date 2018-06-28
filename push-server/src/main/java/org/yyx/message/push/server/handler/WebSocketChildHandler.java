@@ -10,8 +10,9 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 /**
  * webSocketChildHandler
  * <p>
- * create by 叶云轩 at 2018/5/15-下午4:54
- * contact by tdg_yyx@foxmail.com
+ *
+ * @author 叶云轩 contact by tdg_yyx@foxmail.com
+ * @date 2018/6/28 - 下午5:14
  */
 public class WebSocketChildHandler extends ChannelInitializer<SocketChannel> {
     /**

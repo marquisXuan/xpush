@@ -11,19 +11,33 @@ import javax.annotation.Resource;
 /**
  * 消息推送监听器
  * <p>
- * create by 叶云轩 at 2018/5/18-下午7:45
- * contact by tdg_yyx@foxmail.com
+ *
+ * @author 叶云轩 contact by tdg_yyx@foxmail.com
+ * @date 2018/6/28 - 上午10:20
  */
 @Component
 @Order(1)
 public class WebSocketServerListener implements CommandLineRunner {
 
+    /**
+     * Netty配置类
+     */
     @Resource
     private NettyConfig nettyConfig;
 
+    /**
+     * WebSocketServer端
+     */
     @Resource
     private WebSocketServer webSocketServer;
 
+    /**
+     * 在指定端口启动服务器
+     *
+     * @param args 参数
+     *
+     * @throws Exception Exception
+     */
     @Override
     public void run(String... args) throws Exception {
         webSocketServer.run(nettyConfig.getPort());

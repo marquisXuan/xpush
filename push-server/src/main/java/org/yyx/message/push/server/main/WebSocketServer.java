@@ -14,8 +14,9 @@ import org.yyx.message.push.server.handler.WebSocketChildHandler;
 /**
  * webSocket服务器
  * <p>
- * create by 叶云轩 at 2018/5/11-上午11:42
- * contact by tdg_yyx@foxmail.com
+ *
+ * @author 叶云轩 contact by tdg_yyx@foxmail.com
+ * @date 2018/6/28 - 上午10:19
  */
 @Component
 public class WebSocketServer {
@@ -26,6 +27,16 @@ public class WebSocketServer {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketServer.class);
 
+    /**
+     * 启动服务端的方法
+     *
+     * 推荐的线程数量计算公式：
+     * 1. 线程数量 = （线程总时间/瓶颈资源时间） * 瓶颈资源的线程并行数
+     * 2. QPS    = 1000/线程总时间 * 线程数
+     * @param port 服务器监听的端口号
+     *
+     * @throws Exception exception
+     */
     public void run(int port) throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -36,7 +47,7 @@ public class WebSocketServer {
                     .childHandler(new WebSocketChildHandler());
             Channel ch = bootstrap.bind(port).sync().channel();
             LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                    "\t├ [服务器启动]: {}\n" +
+                    "\t├ [服务器启动端口]: {}\n" +
                     "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", port);
             ch.closeFuture().sync();
         } finally {

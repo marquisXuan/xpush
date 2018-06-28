@@ -1,3 +1,4 @@
 netty:
-  websocket:
-    port: 9999
+  web:
+    socket:
+      port: 9999
