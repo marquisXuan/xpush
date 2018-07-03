@@ -29,26 +29,26 @@ public class WebSocketServer {
 
     /**
      * 启动服务端的方法
-     *
+     * <p>
      * 推荐的线程数量计算公式：
      * 1. 线程数量 = （线程总时间/瓶颈资源时间） * 瓶颈资源的线程并行数
      * 2. QPS    = 1000/线程总时间 * 线程数
-     * @param port 服务器监听的端口号
+     *
+     * @param port         服务器监听的端口号
+     * @param webSocketUrl webSocket url
      *
      * @throws Exception exception
      */
-    public void run(int port) throws Exception {
+    public void run(int port, String webSocketUrl) throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new WebSocketChildHandler());
+                    .childHandler(new WebSocketChildHandler(webSocketUrl));
             Channel ch = bootstrap.bind(port).sync().channel();
-            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                    "\t├ [服务器启动端口]: {}\n" +
-                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", port);
+            LOGGER.info("├ [服务器启动端口]: {}\n", port);
             ch.closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();

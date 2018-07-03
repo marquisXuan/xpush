@@ -40,6 +40,6 @@ public class WebSocketServerListener implements CommandLineRunner {
      */
     @Override
     public void run(String... args) throws Exception {
-        webSocketServer.run(nettyConfig.getPort());
+        webSocketServer.run(nettyConfig.getPort(), nettyConfig.getUrl());
     }
 }

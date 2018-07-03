@@ -16,16 +16,18 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.msgpack.MessagePack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yyx.message.push.server.constant.Constant;
 import org.yyx.message.push.server.entity.WebSocketMessageEntity;
 import org.yyx.message.push.server.util.WebSocketUsers;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentMap;
 
 /**
+ * WebSocketServer端处理器
  * <p>
- * create by 叶云轩 at 2018/5/11-上午11:49
- * contact by tdg_yyx@foxmail.com
+ *
+ * @author 叶云轩 contact by tdg_yyx@foxmail.com
+ * @date 2018/6/29 - 上午9:07
  */
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
     /**
@@ -35,7 +37,18 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketServerHandler.class);
 
+    /**
+     * webSocketUrl
+     */
+    private String webSocketUrl;
+    /**
+     * 用于打开关闭握手
+     */
     private WebSocketServerHandshaker socketServerHandShaker;
+
+    public WebSocketServerHandler(String webSocketUrl) {
+        this.webSocketUrl = webSocketUrl;
+    }
 
     /**
      * 异常
@@ -46,6 +59,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) throws Exception {
         cause.printStackTrace();
+        LOGGER.error("├ [服务端捕捉异常]: {}", cause.getMessage());
         channelHandlerContext.close();
     }
 
@@ -56,33 +70,25 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
      */
     @Override
     public void channelActive(ChannelHandlerContext channelHandlerContext) {
-        // 使用一个结构存储通道
-        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                        "\t├ [建立连接]: client [{}]\n" +
-                        "\t├ [当前在线人数]: {}\n" +
-                        "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", channelHandlerContext.channel().remoteAddress()
+        LOGGER.info("├ 与客户端[{}]建立连接\n" +
+                        "├ [服务器当前在线人数]: {}"
+                , channelHandlerContext.channel().remoteAddress()
                 , WebSocketUsers.getUSERS().size() + 1);
     }
 
     /**
-     * 与客户端断开连接时
+     * 与客户端断开连接时 调用此方法
      *
      * @param channelHandlerContext channelHandlerContext
      */
     @Override
     public void channelInactive(ChannelHandlerContext channelHandlerContext) {
         Channel channel = channelHandlerContext.channel();
-        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                "\t├ [断开连接]：client [{}]\n" +
-                "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", channel.remoteAddress());
+        LOGGER.info("├ 与客户端[{}]断开连接", channel.remoteAddress());
+        // 从存储结构中移除通道，也可以用缓存来替代
         WebSocketUsers.remove(channel);
-        ConcurrentMap<String, Channel> users = WebSocketUsers.getUSERS();
-        LOGGER.info("\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓");
-        for (String s : users.keySet()) {
-            LOGGER.info(
-                    "\t├ [当前在线]: {}", s);
-        }
-        LOGGER.info("\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓");
+        // 关闭通道
+        channel.close();
     }
 
     /**
@@ -98,24 +104,25 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     /**
      * 接收客户端发送的消息
      *
-     * @param ctx ChannelHandlerContext
-     * @param msg 消息
+     * @param channelHandlerContext ChannelHandlerContext
+     * @param receiveMessage        消息
      */
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
-        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                "\t├ [收到客户端消息类型]: {} - {}\n" +
-                "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", msg.getClass(), msg.toString());
+    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Object receiveMessage) throws Exception {
         // 传统http接入 第一次需要使用http建立握手
-        if (msg instanceof FullHttpRequest) {
-            handlerHttpRequest(ctx, (FullHttpRequest) msg);
-            ctx.channel().write(new TextWebSocketFrame("连接成功"));
+        if (receiveMessage instanceof FullHttpRequest) {
+            FullHttpRequest fullHttpRequest = (FullHttpRequest) receiveMessage;
+            LOGGER.info("├ [握手]: {}", fullHttpRequest.uri());
+            // 握手
+            handlerHttpRequest(channelHandlerContext, fullHttpRequest);
+            // 发送连接成功给客户端
+            channelHandlerContext.channel().write(new TextWebSocketFrame("连接成功"));
         }
         // WebSocket接入
-        else if (msg instanceof WebSocketFrame) {
-            handlerWebSocketFrame(ctx, (WebSocketFrame) msg);
+        else if (receiveMessage instanceof WebSocketFrame) {
+            WebSocketFrame webSocketFrame = (WebSocketFrame) receiveMessage;
+            handlerWebSocketFrame(channelHandlerContext, webSocketFrame);
         }
-
     }
 
     /**
@@ -125,21 +132,25 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
      * @param req                   请求
      */
     private void handlerHttpRequest(ChannelHandlerContext channelHandlerContext, FullHttpRequest req) {
-
+        //"ws://localhost:9999/oa/websocket/{uri}"
         // 构造握手响应返回，本机测试
         WebSocketServerHandshakerFactory wsFactory
-                = new WebSocketServerHandshakerFactory("ws://localhost:9999/oa/websocket/{uri}",
-                null, false);
+                = new WebSocketServerHandshakerFactory(webSocketUrl, Constant.NULL, Constant.FALSE);
+        // region 从连接路径中截取连接用户名
         String uri = req.uri();
         int i = uri.lastIndexOf("/");
         String userName = uri.substring(i + 1, uri.length());
+        // endregion
+        Channel connectChannel = channelHandlerContext.channel();
         // 加入在线用户
-        WebSocketUsers.put(userName, channelHandlerContext.channel());
+        WebSocketUsers.put(userName, connectChannel);
         socketServerHandShaker = wsFactory.newHandshaker(req);
         if (socketServerHandShaker == null) {
-            WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channelHandlerContext.channel());
+            // 发送版本错误
+            WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(connectChannel);
         } else {
-            socketServerHandShaker.handshake(channelHandlerContext.channel(), req);
+            // 握手响应
+            socketServerHandShaker.handshake(connectChannel, req);
         }
     }
 
@@ -153,44 +164,38 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         Channel channel = channelHandlerContext.channel();
         // region 判断是否是关闭链路的指令
         if (frame instanceof CloseWebSocketFrame) {
-            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                    "\t├ [关闭与客户端的链接]\n" +
-                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓");
+            LOGGER.info("├ 关闭与客户端[{}]链接", channel.remoteAddress());
             socketServerHandShaker.close(channel, (CloseWebSocketFrame) frame.retain());
             return;
         }
         // endregion
         // region 判断是否是ping消息
         if (frame instanceof PingWebSocketFrame) {
-            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                    "\t├ [Ping消息]\n" +
-                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓");
+            LOGGER.info("├ [Ping消息]");
             channel.write(new PongWebSocketFrame(frame.content().retain()));
             return;
         }
         // endregion
+        // region 纯文本消息
         if (frame instanceof TextWebSocketFrame) {
             String text = ((TextWebSocketFrame) frame).text();
-            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                    "\t├ [TextWebSocketFrame]: {}\n" +
-                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", text);
+            LOGGER.info("├ [接收到客户端的消息]: {}", text);
             channel.write(new TextWebSocketFrame("你发的消息是：" + text));
         }
+        // endregion
+        // region 二进制消息
         if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) frame;
             ByteBuf content = binaryWebSocketFrame.content();
-            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                    "\t├ [二进制数据]:{}\n" +
-                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", content);
+            LOGGER.info("├ [二进制数据]:{}", content);
             final int length = content.readableBytes();
             final byte[] array = new byte[length];
             content.getBytes(content.readerIndex(), array, 0, length);
             MessagePack messagePack = new MessagePack();
             WebSocketMessageEntity webSocketMessageEntity = messagePack.read(array, WebSocketMessageEntity.class);
-            LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                    "\t├ [解码数据]: {}\n" +
-                    "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", webSocketMessageEntity);
+            LOGGER.info("├ [解码数据]: {}", webSocketMessageEntity);
             WebSocketUsers.sendMessageToUser(webSocketMessageEntity.getAcceptName(), webSocketMessageEntity.getContent());
         }
+        // endregion
     }
 }

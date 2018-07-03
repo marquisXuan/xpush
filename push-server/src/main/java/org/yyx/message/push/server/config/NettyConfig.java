@@ -15,6 +15,15 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class NettyConfig {
 
+    /**
+     * WebSocket-netty Server port
+     */
     @Value("${netty.web.socket.port}")
     private int port;
+
+    /**
+     * WebSocket Url
+     */
+    @Value("${netty.web.socket.url}")
+    private String url;
 }
