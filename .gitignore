@@ -1,3 +1,4 @@
 *.iml
 *.idea
 push-server/target/
+push-client/target/
