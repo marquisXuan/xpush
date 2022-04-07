@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.FilterType;
+import org.yyx.message.push.server.handler.FirstHandshakeHandler;
+import org.yyx.message.push.server.service.FirstHandshakeHandlerService;
 import org.yyx.message.push.server.strategies.BinaryWebSocketFrameStrategy;
 import org.yyx.message.push.server.strategies.TextWebSocketFrameStrategy;
 
@@ -18,7 +20,10 @@ import org.yyx.message.push.server.strategies.TextWebSocketFrameStrategy;
  * @date 2018/6/28 - 上午10:17
  */
 @Data
-@ComponentScans(@ComponentScan(basePackages = "org.yyx.message.push.server", excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = NettyConfig.class)))
+@ComponentScans({
+        @ComponentScan(basePackages = "org.yyx.message.push.server", excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = NettyConfig.class)),
+        @ComponentScan(basePackages = {"cn.hutool.extra.spring"})
+})
 public class NettyConfig {
 
     /**
@@ -53,5 +58,16 @@ public class NettyConfig {
     @ConditionalOnMissingBean(BinaryWebSocketFrameStrategy.class)
     public BinaryWebSocketFrameStrategy binaryWebSocketFrameStrategy() {
         return new BinaryWebSocketFrameStrategy();
+    }
+
+    /**
+     * 在没有第一次握手处理的情况下，使用默认的处理机制
+     *
+     * @return 默认的处理第一次握手情况
+     */
+    @Bean
+    @ConditionalOnMissingBean(FirstHandshakeHandlerService.class)
+    public FirstHandshakeHandlerService firstHandshakeHandler() {
+        return new FirstHandshakeHandler();
     }
 }

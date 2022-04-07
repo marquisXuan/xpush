@@ -50,7 +50,6 @@ public class WebSocketUsers {
      * 移除通道
      *
      * @param channel 通道
-     *
      * @return 移除结果
      */
     public static boolean remove(Channel channel) {
@@ -79,9 +78,7 @@ public class WebSocketUsers {
     public static boolean remove(String key) {
         Channel remove = USERS.remove(key);
         boolean containsValue = USERS.containsValue(remove);
-        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                "\t├ [移出结果]: {}\n" +
-                "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", containsValue ? "失败" : "成功");
+        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" + "\t├ [移出结果]: {}\n" + "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", containsValue ? "失败" : "成功");
         return containsValue;
     }
 

@@ -1,5 +1,6 @@
 package org.yyx.message.push.server.handler;
 
+import cn.hutool.extra.spring.SpringUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yyx.message.push.server.constant.Constant;
 import org.yyx.message.push.server.context.FrameStrategyContext;
+import org.yyx.message.push.server.domain.entity.WebSocketUserEntity;
+import org.yyx.message.push.server.service.FirstHandshakeHandlerService;
 import org.yyx.message.push.server.util.WebSocketUsers;
 
 import java.io.IOException;
@@ -127,12 +130,12 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(webSocketUrl, Constant.NULL, Constant.FALSE);
         // region 从连接路径中截取连接用户名
         String uri = req.uri();
-        int i = uri.lastIndexOf("/");
-        String userName = uri.substring(i + 1, uri.length());
+        FirstHandshakeHandlerService handshakeHandlerService = SpringUtil.getBean(FirstHandshakeHandlerService.class);
+        WebSocketUserEntity webSocketUserEntity = handshakeHandlerService.encapsulationUniqueId(uri);
         // endregion
         Channel connectChannel = channelHandlerContext.channel();
         // 加入在线用户
-        WebSocketUsers.put(userName, connectChannel);
+        WebSocketUsers.put(webSocketUserEntity.uniqueKey(), connectChannel);
         socketServerHandShaker = wsFactory.newHandshaker(req);
         if (socketServerHandShaker == null) {
             // 发送版本错误
