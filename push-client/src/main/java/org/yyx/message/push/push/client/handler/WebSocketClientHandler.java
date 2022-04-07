@@ -1,7 +1,6 @@
 package org.yyx.message.push.push.client.handler;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -17,6 +16,8 @@ import org.yyx.message.push.push.client.util.WebSocketUsers;
  * <p>
  * create by 叶云轩 at 2018/5/21-下午6:10
  * contact by tdg_yyx@foxmail.com
+ *
+ * @author xuan
  */
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
     /**
@@ -47,9 +48,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) throws Exception {
-        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                "\t├ [exception]: {}\n" +
-                "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", cause.getMessage());
+        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" + "\t├ [exception]: {}\n" + "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", cause.getMessage());
         // 移出通道
         WebSocketUsers.remove(channelHandlerContext.channel());
         channelHandlerContext.close();
@@ -62,9 +61,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
      */
     @Override
     public void channelActive(ChannelHandlerContext channelHandlerContext) throws Exception {
-        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                "\t├ [建立连接]\n" +
-                "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓");
+        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" + "\t├ [建立连接]\n" + "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓");
 
         Channel channel = channelHandlerContext.channel();
         // 握手
@@ -80,9 +77,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public void channelInactive(ChannelHandlerContext channelHandlerContext) {
         Channel channel = channelHandlerContext.channel();
 //        // 移出通道
-        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" +
-                "\t├ [断开连接]：client [{}]\n" +
-                "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", channel.remoteAddress());
+        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" + "\t├ [断开连接]：client [{}]\n" + "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", channel.remoteAddress());
 
     }
 
@@ -96,6 +91,18 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         channelHandlerContext.flush();
     }
 
+
+    /**
+     * 获取登陆用户的方法
+     *
+     * @return 用户名
+     */
+    private String getUserNameInPath() {
+        String path = webSocketClientHandshaker.uri().getPath();
+        int i = path.lastIndexOf("/");
+        return path.substring(i + 1, path.length());
+    }
+
     /**
      * 接收消息
      *
@@ -103,7 +110,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
      * @param msg                   msg
      */
     @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Object msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object msg) throws Exception {
         Channel channel = channelHandlerContext.channel();
         if (!webSocketClientHandshaker.isHandshakeComplete()) {
             webSocketClientHandshaker.finishHandshake(channel, (FullHttpResponse) msg);
@@ -116,21 +123,8 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
         if (msg instanceof FullHttpResponse) {
             FullHttpResponse response = (FullHttpResponse) msg;
-            throw new IllegalStateException(
-                    "Unexpected FullHttpResponse (getStatus=" + response.status() +
-                            ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
+            throw new IllegalStateException("Unexpected FullHttpResponse (getStatus=" + response.status() + ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
-    }
-
-    /**
-     * 获取登陆用户的方法
-     *
-     * @return 用户名
-     */
-    private String getUserNameInPath() {
-        String path = webSocketClientHandshaker.uri().getPath();
-        int i = path.lastIndexOf("/");
-        return path.substring(i + 1, path.length());
     }
 }
 

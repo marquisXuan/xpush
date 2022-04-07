@@ -26,7 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <netty>5.0.0.Alpha2</netty>
+        <netty>4.1.75.Final</netty>
         <lombok>1.16.20</lombok>
         <msgpack>0.6.12</msgpack>
     </properties>

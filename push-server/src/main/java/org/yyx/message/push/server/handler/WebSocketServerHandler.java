@@ -1,23 +1,14 @@
 package org.yyx.message.push.server.handler;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import org.msgpack.MessagePack;
+import io.netty.handler.codec.http.websocketx.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yyx.message.push.server.constant.Constant;
-import org.yyx.message.push.server.entity.WebSocketMessageEntity;
+import org.yyx.message.push.server.context.FrameStrategyContext;
 import org.yyx.message.push.server.util.WebSocketUsers;
 
 import java.io.IOException;
@@ -30,6 +21,7 @@ import java.io.IOException;
  * @date 2018/6/29 - 上午9:07
  */
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
+
     /**
      * WebSocketServerHandler 日志控制器
      * Create by 叶云轩 at 2018/5/11 上午11:50
@@ -40,7 +32,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     /**
      * webSocketUrl
      */
-    private String webSocketUrl;
+    private final String webSocketUrl;
+
     /**
      * 用于打开关闭握手
      */
@@ -70,10 +63,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
      */
     @Override
     public void channelActive(ChannelHandlerContext channelHandlerContext) {
-        LOGGER.info("├ 与客户端[{}]建立连接\n" +
-                        "├ [服务器当前在线人数]: {}"
-                , channelHandlerContext.channel().remoteAddress()
-                , WebSocketUsers.getUSERS().size() + 1);
+        LOGGER.info("├ 与客户端[{}]建立连接\n" + "├ [服务器当前在线人数]: {}", channelHandlerContext.channel().remoteAddress(), WebSocketUsers.getUSERS().size() + 1);
     }
 
     /**
@@ -107,23 +97,23 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
      * @param channelHandlerContext ChannelHandlerContext
      * @param receiveMessage        消息
      */
-    @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Object receiveMessage) throws Exception {
-        // 传统http接入 第一次需要使用http建立握手
-        if (receiveMessage instanceof FullHttpRequest) {
-            FullHttpRequest fullHttpRequest = (FullHttpRequest) receiveMessage;
-            LOGGER.info("├ [握手]: {}", fullHttpRequest.uri());
-            // 握手
-            handlerHttpRequest(channelHandlerContext, fullHttpRequest);
-            // 发送连接成功给客户端
-            channelHandlerContext.channel().write(new TextWebSocketFrame("连接成功"));
-        }
-        // WebSocket接入
-        else if (receiveMessage instanceof WebSocketFrame) {
-            WebSocketFrame webSocketFrame = (WebSocketFrame) receiveMessage;
-            handlerWebSocketFrame(channelHandlerContext, webSocketFrame);
-        }
-    }
+//    @Override
+//    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Object receiveMessage) throws Exception {
+//        // 传统http接入 第一次需要使用http建立握手
+//        if (receiveMessage instanceof FullHttpRequest) {
+//            FullHttpRequest fullHttpRequest = (FullHttpRequest) receiveMessage;
+//            LOGGER.info("├ [握手]: {}", fullHttpRequest.uri());
+//            // 握手
+//            handlerHttpRequest(channelHandlerContext, fullHttpRequest);
+//            // 发送连接成功给客户端
+//            channelHandlerContext.channel().write(new TextWebSocketFrame("连接成功"));
+//        }
+//        // WebSocket接入
+//        else if (receiveMessage instanceof WebSocketFrame) {
+//            WebSocketFrame webSocketFrame = (WebSocketFrame) receiveMessage;
+//            handlerWebSocketFrame(channelHandlerContext, webSocketFrame);
+//        }
+//    }
 
     /**
      * 第一次握手
@@ -134,8 +124,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private void handlerHttpRequest(ChannelHandlerContext channelHandlerContext, FullHttpRequest req) {
         //"ws://localhost:9999/oa/websocket/{uri}"
         // 构造握手响应返回，本机测试
-        WebSocketServerHandshakerFactory wsFactory
-                = new WebSocketServerHandshakerFactory(webSocketUrl, Constant.NULL, Constant.FALSE);
+        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(webSocketUrl, Constant.NULL, Constant.FALSE);
         // region 从连接路径中截取连接用户名
         String uri = req.uri();
         int i = uri.lastIndexOf("/");
@@ -169,33 +158,30 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             return;
         }
         // endregion
-        // region 判断是否是ping消息
-        if (frame instanceof PingWebSocketFrame) {
-            LOGGER.info("├ [Ping消息]");
-            channel.write(new PongWebSocketFrame(frame.content().retain()));
-            return;
+        FrameStrategyContext.handlerWebSocketFrame(channel, frame);
+    }
+
+    /**
+     * 接收客户端发送的消息
+     *
+     * @param channelHandlerContext ChannelHandlerContext
+     * @param receiveMessage        消息
+     */
+    @Override
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object receiveMessage) throws Exception {
+        // 传统http接入 第一次需要使用http建立握手
+        if (receiveMessage instanceof FullHttpRequest) {
+            FullHttpRequest fullHttpRequest = (FullHttpRequest) receiveMessage;
+            LOGGER.info("├ [握手]: {}", fullHttpRequest.uri());
+            // 握手
+            handlerHttpRequest(channelHandlerContext, fullHttpRequest);
+            // 发送连接成功给客户端
+            channelHandlerContext.channel().write(new TextWebSocketFrame("连接成功"));
         }
-        // endregion
-        // region 纯文本消息
-        if (frame instanceof TextWebSocketFrame) {
-            String text = ((TextWebSocketFrame) frame).text();
-            LOGGER.info("├ [接收到客户端的消息]: {}", text);
-            channel.write(new TextWebSocketFrame("你发的消息是：" + text));
+        // WebSocket接入
+        else if (receiveMessage instanceof WebSocketFrame) {
+            WebSocketFrame webSocketFrame = (WebSocketFrame) receiveMessage;
+            handlerWebSocketFrame(channelHandlerContext, webSocketFrame);
         }
-        // endregion
-        // region 二进制消息
-        if (frame instanceof BinaryWebSocketFrame) {
-            BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) frame;
-            ByteBuf content = binaryWebSocketFrame.content();
-            LOGGER.info("├ [二进制数据]:{}", content);
-            final int length = content.readableBytes();
-            final byte[] array = new byte[length];
-            content.getBytes(content.readerIndex(), array, 0, length);
-            MessagePack messagePack = new MessagePack();
-            WebSocketMessageEntity webSocketMessageEntity = messagePack.read(array, WebSocketMessageEntity.class);
-            LOGGER.info("├ [解码数据]: {}", webSocketMessageEntity);
-            WebSocketUsers.sendMessageToUser(webSocketMessageEntity.getAcceptName(), webSocketMessageEntity.getContent());
-        }
-        // endregion
     }
 }

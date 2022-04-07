@@ -1,4 +1,4 @@
-package org.yyx.message.push.server.entity;
+package org.yyx.message.push.server.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +11,8 @@ import java.io.Serializable;
  * <p>
  * create by 叶云轩 at 2018/5/18-下午4:12
  * contact by tdg_yyx@foxmail.com
+ *
+ * @author 叶云轩
  */
 @Message
 @Data

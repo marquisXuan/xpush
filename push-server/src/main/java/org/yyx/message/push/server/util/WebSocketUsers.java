@@ -27,13 +27,13 @@ public class WebSocketUsers {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketUsers.class);
 
-    private static WebSocketUsers ourInstance = new WebSocketUsers();
+    private static final WebSocketUsers OUR_INSTANCE = new WebSocketUsers();
 
     private WebSocketUsers() {
     }
 
     public static WebSocketUsers getInstance() {
-        return ourInstance;
+        return OUR_INSTANCE;
     }
 
     /**

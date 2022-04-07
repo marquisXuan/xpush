@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "netty.web.socket.port",
+      "type": "java.lang.String",
+      "description": "netty.web.socket.server.port."
+    },
+    {
+      "name": "netty.web.socket.url",
+      "type": "java.lang.String",
+      "description": "netty.web.socket.server.url."
+    }
+  ]
+}

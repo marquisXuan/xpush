@@ -36,7 +36,6 @@ public class WebSocketServer {
      *
      * @param port         服务器监听的端口号
      * @param webSocketUrl webSocket url
-     *
      * @throws Exception exception
      */
     public void run(int port, String webSocketUrl) throws Exception {
@@ -44,9 +43,7 @@ public class WebSocketServer {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(new WebSocketChildHandler(webSocketUrl));
+            bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(new WebSocketChildHandler(webSocketUrl));
             Channel ch = bootstrap.bind(port).sync().channel();
             LOGGER.info("├ [服务器启动端口]: {}\n", port);
             ch.closeFuture().sync();

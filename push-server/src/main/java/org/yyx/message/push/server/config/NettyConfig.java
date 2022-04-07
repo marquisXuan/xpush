@@ -2,7 +2,13 @@ package org.yyx.message.push.server.config;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScans;
+import org.springframework.context.annotation.FilterType;
+import org.yyx.message.push.server.strategies.BinaryWebSocketFrameStrategy;
+import org.yyx.message.push.server.strategies.TextWebSocketFrameStrategy;
 
 /**
  * Netty配置
@@ -11,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
  * @author 叶云轩 contact by tdg_yyx@foxmail.com
  * @date 2018/6/28 - 上午10:17
  */
-@Configuration
 @Data
+@ComponentScans(@ComponentScan(basePackages = "org.yyx.message.push.server", excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = NettyConfig.class)))
 public class NettyConfig {
 
     /**
@@ -26,4 +32,26 @@ public class NettyConfig {
      */
     @Value("${netty.web.socket.url}")
     private String url;
+
+    /**
+     * 没有文本消息处理策略时，使用默认策略
+     *
+     * @return 文本消息策略
+     */
+    @Bean
+    @ConditionalOnMissingBean(TextWebSocketFrameStrategy.class)
+    public TextWebSocketFrameStrategy textWebSocketFrameStrategy() {
+        return new TextWebSocketFrameStrategy();
+    }
+
+    /**
+     * 没有二进制消息处理策略时，使用默认策略
+     *
+     * @return 二进制消息数据处理策略
+     */
+    @Bean
+    @ConditionalOnMissingBean(BinaryWebSocketFrameStrategy.class)
+    public BinaryWebSocketFrameStrategy binaryWebSocketFrameStrategy() {
+        return new BinaryWebSocketFrameStrategy();
+    }
 }
