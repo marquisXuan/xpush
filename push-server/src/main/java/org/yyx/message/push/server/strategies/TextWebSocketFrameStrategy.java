@@ -14,7 +14,7 @@ import org.yyx.message.push.server.factories.FrameStrategyFactory;
  * @author 叶云轩 at tdg_yyx@foxmail.com
  * @date 2022/4/6 23:07
  */
-public class TextWebSocketFrameStrategy implements FrameStrategy, InitializingBean {
+public class TextWebSocketFrameStrategy implements FrameStrategy, InitializingBean, TextWebSocketFrameDealStrategy {
 
     /**
      * PongWebSocketFrameStrategy 日志输出器

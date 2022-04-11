@@ -8,7 +8,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yyx.message.push.server.constant.Constant;
+import org.yyx.message.push.server.domain.constants.Constant;
 import org.yyx.message.push.server.context.FrameStrategyContext;
 import org.yyx.message.push.server.domain.entity.WebSocketUserEntity;
 import org.yyx.message.push.server.service.FirstHandshakeHandlerService;
@@ -134,7 +134,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         WebSocketUserEntity webSocketUserEntity = handshakeHandlerService.encapsulationUniqueId(uri);
         // endregion
         Channel connectChannel = channelHandlerContext.channel();
-        // 加入在线用户
+        // 加入在线用户 webSocketUserEntity.getClient() + ":" +
         WebSocketUsers.put(webSocketUserEntity.uniqueKey(), connectChannel);
         socketServerHandShaker = wsFactory.newHandshaker(req);
         if (socketServerHandShaker == null) {
@@ -179,10 +179,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             // 握手
             handlerHttpRequest(channelHandlerContext, fullHttpRequest);
             // 发送连接成功给客户端
-            channelHandlerContext.channel().write(new TextWebSocketFrame("连接成功"));
-        }
-        // WebSocket接入
-        else if (receiveMessage instanceof WebSocketFrame) {
+//            channelHandlerContext.channel().write(new TextWebSocketFrame(""));
+        } else if (receiveMessage instanceof WebSocketFrame) {
+            // WebSocket接入
             WebSocketFrame webSocketFrame = (WebSocketFrame) receiveMessage;
             handlerWebSocketFrame(channelHandlerContext, webSocketFrame);
         }

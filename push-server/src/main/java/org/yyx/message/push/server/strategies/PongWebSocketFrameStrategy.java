@@ -16,7 +16,7 @@ import org.yyx.message.push.server.factories.FrameStrategyFactory;
  * @date 2022/4/6 23:07
  */
 @Component
-public class PongWebSocketFrameStrategy implements FrameStrategy, InitializingBean {
+public class PongWebSocketFrameStrategy implements FrameStrategy, InitializingBean,BinaryWebSocketFrameDealStrategy {
 
     /**
      * PongWebSocketFrameStrategy 日志输出器

@@ -9,6 +9,11 @@
       "name": "netty.web.socket.url",
       "type": "java.lang.String",
       "description": "netty.web.socket.server.url."
+    },
+    {
+      "name": "netty.web.socket.ip",
+      "type": "java.lang.String",
+      "description": "netty.web.socket.server.ip."
     }
   ]
 }

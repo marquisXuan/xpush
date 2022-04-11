@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author 叶云轩 at tdg_yyx@foxmail.com
  * @date 2022/4/6 23:07
  */
-public class BinaryWebSocketFrameStrategy implements FrameStrategy, InitializingBean {
+public class BinaryWebSocketFrameStrategy implements FrameStrategy, InitializingBean,BinaryWebSocketFrameDealStrategy {
 
     /**
      * PongWebSocketFrameStrategy 日志输出器

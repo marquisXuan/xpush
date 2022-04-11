@@ -9,7 +9,9 @@ import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.FilterType;
 import org.yyx.message.push.server.handler.FirstHandshakeHandler;
 import org.yyx.message.push.server.service.FirstHandshakeHandlerService;
+import org.yyx.message.push.server.strategies.BinaryWebSocketFrameDealStrategy;
 import org.yyx.message.push.server.strategies.BinaryWebSocketFrameStrategy;
+import org.yyx.message.push.server.strategies.TextWebSocketFrameDealStrategy;
 import org.yyx.message.push.server.strategies.TextWebSocketFrameStrategy;
 
 /**
@@ -20,10 +22,9 @@ import org.yyx.message.push.server.strategies.TextWebSocketFrameStrategy;
  * @date 2018/6/28 - 上午10:17
  */
 @Data
-@ComponentScans({
-        @ComponentScan(basePackages = "org.yyx.message.push.server", excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = NettyConfig.class)),
-        @ComponentScan(basePackages = {"cn.hutool.extra.spring"})
-})
+@ComponentScans({@ComponentScan(basePackages = "org.yyx.message.push.server", excludeFilters =
+@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = NettyConfig.class)), @ComponentScan(basePackages =
+        {"cn.hutool.extra.spring"})})
 public class NettyConfig {
 
     /**
@@ -44,7 +45,7 @@ public class NettyConfig {
      * @return 文本消息策略
      */
     @Bean
-    @ConditionalOnMissingBean(TextWebSocketFrameStrategy.class)
+    @ConditionalOnMissingBean(TextWebSocketFrameDealStrategy.class)
     public TextWebSocketFrameStrategy textWebSocketFrameStrategy() {
         return new TextWebSocketFrameStrategy();
     }
@@ -55,7 +56,7 @@ public class NettyConfig {
      * @return 二进制消息数据处理策略
      */
     @Bean
-    @ConditionalOnMissingBean(BinaryWebSocketFrameStrategy.class)
+    @ConditionalOnMissingBean(BinaryWebSocketFrameDealStrategy.class)
     public BinaryWebSocketFrameStrategy binaryWebSocketFrameStrategy() {
         return new BinaryWebSocketFrameStrategy();
     }

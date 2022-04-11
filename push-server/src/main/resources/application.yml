@@ -2,4 +2,5 @@ netty:
   web:
     socket:
       port: 9999
-      url: ws://localhost:9999/oa/websocket/{uri}
+      ip: localhost
+      url: ws://${netty.web.socket.ip}:${netty.web.socket.port}/oa/websocket/{uri}

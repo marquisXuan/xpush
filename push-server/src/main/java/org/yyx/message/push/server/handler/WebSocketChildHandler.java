@@ -7,7 +7,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.yyx.message.push.server.constant.HttpObjectConstant;
+import org.yyx.message.push.server.domain.constants.HttpObjectConstant;
 
 import java.util.concurrent.TimeUnit;
 

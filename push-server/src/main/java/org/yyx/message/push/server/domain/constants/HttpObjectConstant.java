@@ -1,4 +1,4 @@
-package org.yyx.message.push.server.constant;
+package org.yyx.message.push.server.domain.constants;
 
 /**
  * Http常量

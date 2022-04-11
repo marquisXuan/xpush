@@ -56,14 +56,7 @@ public class WebSocketUsers {
         String key = null;
         boolean b = USERS.containsValue(channel);
         if (b) {
-            Set<Map.Entry<String, Channel>> entries = USERS.entrySet();
-            for (Map.Entry<String, Channel> entry : entries) {
-                Channel value = entry.getValue();
-                if (value.equals(channel)) {
-                    key = entry.getKey();
-                    break;
-                }
-            }
+            key = getKeyByChannel(channel);
         } else {
             return true;
         }
@@ -78,7 +71,8 @@ public class WebSocketUsers {
     public static boolean remove(String key) {
         Channel remove = USERS.remove(key);
         boolean containsValue = USERS.containsValue(remove);
-        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" + "\t├ [移出结果]: {}\n" + "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", containsValue ? "失败" : "成功");
+        LOGGER.info("\n\t⌜⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓\n" + "\t├ [移出结果]: {}\n" + "\t⌞⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓⎓", containsValue ? "失败"
+                : "成功");
         return containsValue;
     }
 
@@ -116,5 +110,48 @@ public class WebSocketUsers {
             channel.write(new TextWebSocketFrame(message));
             channel.flush();
         }
+    }
+
+    /**
+     * 通过channel获取用户
+     *
+     * @param channel 通道
+     * @return 用户Key
+     */
+    public static String getUser(Channel channel) {
+        String key = null;
+        boolean b = USERS.containsValue(channel);
+        if (b) {
+            key = getKeyByChannel(channel);
+        }
+        return key;
+    }
+
+    /**
+     * 通过Value找Key
+     *
+     * @param channel 通道
+     * @return key
+     */
+    private static String getKeyByChannel(Channel channel) {
+        Set<Map.Entry<String, Channel>> entries = USERS.entrySet();
+        for (Map.Entry<String, Channel> entry : entries) {
+            Channel value = entry.getValue();
+            if (value.equals(channel)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 判断一个人是否在线
+     *
+     * @param key key
+     * @return true 在线
+     */
+    public static boolean isOnline(String key) {
+        Channel channel = USERS.get(key);
+        return channel != null;
     }
 }

@@ -18,6 +18,15 @@ public class WebSocketUserEntity {
 
     private String userAvatar;
 
+    private String client;
+
+    public WebSocketUserEntity(String id, String userName, String userAvatar, String client) {
+        this.id = id;
+        this.userName = userName;
+        this.userAvatar = userAvatar;
+        this.client = client;
+    }
+
     public WebSocketUserEntity(String id, String userName, String userAvatar) {
         this.id = id;
         this.userName = userName;
@@ -36,6 +45,36 @@ public class WebSocketUserEntity {
     public WebSocketUserEntity() {
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        WebSocketUserEntity that = (WebSocketUserEntity) o;
+        return Objects.equals(id, that.id) && Objects.equals(userName, that.userName) && Objects.equals(userAvatar, that.userAvatar) && Objects.equals(client, that.client);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userName, userAvatar, client);
+    }
+
+    @Override
+    public String toString() {
+        return "WebSocketUserEntity{" + "id='" + id + '\'' + ", userName='" + userName + '\'' + ", userAvatar='" + userAvatar + '\'' + ", client='" + client + '\'' + '}';
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
+    }
+
     /**
      * 唯一标识 。如果id为空，则使用用户名
      *
@@ -48,28 +87,6 @@ public class WebSocketUserEntity {
             return userName;
         }
         return null;
-    }
-
-    @Override
-    public String toString() {
-        return "WebSocketUserEntity{" + "id='" + id + '\'' + ", userName='" + userName + '\'' + ", userAvatar='" + userAvatar + '\'' + '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        WebSocketUserEntity that = (WebSocketUserEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(userName, that.userName) && Objects.equals(userAvatar, that.userAvatar);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, userName, userAvatar);
     }
 
     public String getId() {
