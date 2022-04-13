@@ -1,12 +1,12 @@
 package org.yyx.message.push.server.domain.constants;
 
 /**
- * 命令常量
+ * 客户端请求服务器的命令常量
  *
  * @author 叶云轩 at tdg_yyx@foxmail.com
  * @date 2022/4/8 10:50
  */
-public class WebsocketCommandConstant {
+public class WebsocketClientCommandConstant {
     /**
      * 命令 获取聊天列表
      */
@@ -39,4 +39,8 @@ public class WebsocketCommandConstant {
      * 获取与某人聊天记录的命令
      */
     public static final String GET_CHAT_LOG = "GET_CHAT_LOG";
+    /**
+     * 客户端Ping命令
+     */
+    public static final String CLIENT_CMD_PING = "CLIENT_PING";
 }
