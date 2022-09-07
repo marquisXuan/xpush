@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.yyx.message.push.server.config.NettyConfig
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.yyx.message.push.server.config.XpushAutoConfiguration

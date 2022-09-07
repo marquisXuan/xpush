@@ -4,15 +4,10 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScans;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Configuration;
 import org.yyx.message.push.server.handler.FirstHandshakeHandler;
 import org.yyx.message.push.server.service.FirstHandshakeHandlerService;
-import org.yyx.message.push.server.strategies.BinaryWebSocketFrameDealStrategy;
-import org.yyx.message.push.server.strategies.BinaryWebSocketFrameStrategy;
-import org.yyx.message.push.server.strategies.TextWebSocketFrameDealStrategy;
-import org.yyx.message.push.server.strategies.TextWebSocketFrameStrategy;
+import org.yyx.message.push.server.strategies.*;
 
 /**
  * Netty配置
@@ -22,9 +17,7 @@ import org.yyx.message.push.server.strategies.TextWebSocketFrameStrategy;
  * @date 2018/6/28 - 上午10:17
  */
 @Data
-@ComponentScans({@ComponentScan(basePackages = "org.yyx.message.push.server", excludeFilters =
-@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = NettyConfig.class)), @ComponentScan(basePackages =
-        {"cn.hutool.extra.spring"})})
+@Configuration
 public class NettyConfig {
 
     /**
@@ -59,6 +52,12 @@ public class NettyConfig {
     @ConditionalOnMissingBean(BinaryWebSocketFrameDealStrategy.class)
     public BinaryWebSocketFrameStrategy binaryWebSocketFrameStrategy() {
         return new BinaryWebSocketFrameStrategy();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(PongWebSocketFrameDealStrategy.class)
+    public PongWebSocketFrameStrategy pongWebSocketFrameStrategy() {
+        return new PongWebSocketFrameStrategy();
     }
 
     /**

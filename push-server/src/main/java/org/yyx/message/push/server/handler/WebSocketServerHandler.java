@@ -5,11 +5,14 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.websocketx.*;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yyx.message.push.server.domain.constants.Constant;
 import org.yyx.message.push.server.context.FrameStrategyContext;
+import org.yyx.message.push.server.domain.constants.Constant;
 import org.yyx.message.push.server.domain.entity.WebSocketUserEntity;
 import org.yyx.message.push.server.service.FirstHandshakeHandlerService;
 import org.yyx.message.push.server.util.WebSocketUsers;
@@ -100,23 +103,23 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
      * @param channelHandlerContext ChannelHandlerContext
      * @param receiveMessage        消息
      */
-//    @Override
-//    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Object receiveMessage) throws Exception {
-//        // 传统http接入 第一次需要使用http建立握手
-//        if (receiveMessage instanceof FullHttpRequest) {
-//            FullHttpRequest fullHttpRequest = (FullHttpRequest) receiveMessage;
-//            LOGGER.info("├ [握手]: {}", fullHttpRequest.uri());
-//            // 握手
-//            handlerHttpRequest(channelHandlerContext, fullHttpRequest);
-//            // 发送连接成功给客户端
-//            channelHandlerContext.channel().write(new TextWebSocketFrame("连接成功"));
-//        }
-//        // WebSocket接入
-//        else if (receiveMessage instanceof WebSocketFrame) {
-//            WebSocketFrame webSocketFrame = (WebSocketFrame) receiveMessage;
-//            handlerWebSocketFrame(channelHandlerContext, webSocketFrame);
-//        }
-//    }
+    //    @Override
+    //    protected void messageReceived(ChannelHandlerContext channelHandlerContext, Object receiveMessage) throws Exception {
+    //        // 传统http接入 第一次需要使用http建立握手
+    //        if (receiveMessage instanceof FullHttpRequest) {
+    //            FullHttpRequest fullHttpRequest = (FullHttpRequest) receiveMessage;
+    //            LOGGER.info("├ [握手]: {}", fullHttpRequest.uri());
+    //            // 握手
+    //            handlerHttpRequest(channelHandlerContext, fullHttpRequest);
+    //            // 发送连接成功给客户端
+    //            channelHandlerContext.channel().write(new TextWebSocketFrame("连接成功"));
+    //        }
+    //        // WebSocket接入
+    //        else if (receiveMessage instanceof WebSocketFrame) {
+    //            WebSocketFrame webSocketFrame = (WebSocketFrame) receiveMessage;
+    //            handlerWebSocketFrame(channelHandlerContext, webSocketFrame);
+    //        }
+    //    }
 
     /**
      * 第一次握手
@@ -135,7 +138,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         // endregion
         Channel connectChannel = channelHandlerContext.channel();
         // 加入在线用户 webSocketUserEntity.getClient() + ":" +
-        WebSocketUsers.put(webSocketUserEntity.uniqueKey(), connectChannel);
+        String key = webSocketUserEntity.uniqueKey();
+        LOGGER.info("[handlerHttpRequest] -> [加入在线用户] {} : {}", key, connectChannel.id());
+        WebSocketUsers.put(key, connectChannel);
         socketServerHandShaker = wsFactory.newHandshaker(req);
         if (socketServerHandShaker == null) {
             // 发送版本错误
@@ -179,7 +184,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             // 握手
             handlerHttpRequest(channelHandlerContext, fullHttpRequest);
             // 发送连接成功给客户端
-//            channelHandlerContext.channel().write(new TextWebSocketFrame(""));
+            //            channelHandlerContext.channel().write(new TextWebSocketFrame(""));
         } else if (receiveMessage instanceof WebSocketFrame) {
             // WebSocket接入
             WebSocketFrame webSocketFrame = (WebSocketFrame) receiveMessage;

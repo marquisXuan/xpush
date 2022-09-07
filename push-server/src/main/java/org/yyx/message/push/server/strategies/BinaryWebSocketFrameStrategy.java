@@ -20,19 +20,16 @@ import java.io.IOException;
  * @author 叶云轩 at tdg_yyx@foxmail.com
  * @date 2022/4/6 23:07
  */
-public class BinaryWebSocketFrameStrategy implements FrameStrategy, InitializingBean,BinaryWebSocketFrameDealStrategy {
+public class BinaryWebSocketFrameStrategy implements FrameStrategy, InitializingBean, BinaryWebSocketFrameDealStrategy {
 
     /**
      * PongWebSocketFrameStrategy 日志输出器
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(BinaryWebSocketFrameStrategy.class);
 
-    public BinaryWebSocketFrameStrategy() {
-        LOGGER.info("[BinaryWebSocketFrameStrategy] -> [注册二进制消息策略]");
-    }
-
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
+        LOGGER.info("[BinaryWebSocketFrameStrategy] -> [注册二进制消息策略]");
         FrameStrategyFactory.register(BinaryWebSocketFrame.class, this);
     }
 

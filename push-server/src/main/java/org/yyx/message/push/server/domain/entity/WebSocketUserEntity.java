@@ -54,7 +54,8 @@ public class WebSocketUserEntity {
             return false;
         }
         WebSocketUserEntity that = (WebSocketUserEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(userName, that.userName) && Objects.equals(userAvatar, that.userAvatar) && Objects.equals(client, that.client);
+        return Objects.equals(id, that.id) && Objects.equals(userName, that.userName) && Objects.equals(userAvatar,
+                that.userAvatar) && Objects.equals(client, that.client);
     }
 
     @Override

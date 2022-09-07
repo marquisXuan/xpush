@@ -21,12 +21,9 @@ public class TextWebSocketFrameStrategy implements FrameStrategy, InitializingBe
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(TextWebSocketFrameStrategy.class);
 
-    public TextWebSocketFrameStrategy() {
-        LOGGER.info("[TextWebSocketFrameStrategy] -> [注册纯文本消息策略]");
-    }
-
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
+        LOGGER.info("[TextWebSocketFrameStrategy] -> [注册纯文本消息策略]");
         FrameStrategyFactory.register(TextWebSocketFrame.class, this);
     }
 

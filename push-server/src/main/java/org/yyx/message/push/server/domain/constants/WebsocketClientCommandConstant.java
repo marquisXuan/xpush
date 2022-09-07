@@ -42,5 +42,9 @@ public class WebsocketClientCommandConstant {
     /**
      * 客户端Ping命令
      */
-    public static final String CLIENT_CMD_PING = "CLIENT_PING";
+    public static final String CLIENT_CMD_PING = "CLIENT_CMD_PING";
+    /**
+     * 客户端 发送语音消息的命令
+     */
+    public static final String SEND_VOICE_MESSAGE = "SEND_VOICE_MESSAGE";
 }

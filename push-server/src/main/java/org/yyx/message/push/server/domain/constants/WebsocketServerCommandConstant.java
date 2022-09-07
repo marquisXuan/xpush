@@ -27,4 +27,8 @@ public class WebsocketServerCommandConstant {
      * 响应 发送者发送消息给接收者
      */
     public static final String RESPONSE_RECEIVE_MESSAGE_FROM_OTHER = "RESPONSE_RECEIVE_MESSAGE_FROM_OTHER";
+    /**
+     * 伪心跳响应PONG
+     */
+    public static final String RESPONSE_PONG = "RESPONSE_PONG";
 }

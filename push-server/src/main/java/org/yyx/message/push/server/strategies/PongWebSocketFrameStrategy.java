@@ -6,7 +6,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Component;
 import org.yyx.message.push.server.factories.FrameStrategyFactory;
 
 /**
@@ -15,8 +14,7 @@ import org.yyx.message.push.server.factories.FrameStrategyFactory;
  * @author 叶云轩 at tdg_yyx@foxmail.com
  * @date 2022/4/6 23:07
  */
-@Component
-public class PongWebSocketFrameStrategy implements FrameStrategy, InitializingBean,BinaryWebSocketFrameDealStrategy {
+public class PongWebSocketFrameStrategy implements FrameStrategy, InitializingBean, PongWebSocketFrameDealStrategy {
 
     /**
      * PongWebSocketFrameStrategy 日志输出器
@@ -34,7 +32,7 @@ public class PongWebSocketFrameStrategy implements FrameStrategy, InitializingBe
 
     @Override
     public void dealMessage(Channel channel, WebSocketFrame frame) {
-        LOGGER.info("[dealMessage] -> [接收到来自客户端 {} 的ping 消息]",channel.id());
+        LOGGER.info("[dealMessage] -> [接收到来自客户端 {} 的ping 消息]", channel.id());
         channel.write(new PongWebSocketFrame(frame.content().retain()));
     }
 }

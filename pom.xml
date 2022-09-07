@@ -90,12 +90,12 @@
         <repository>
             <id>maven-releases</id>
             <name>Nexus Release Repository</name>
-            <url>http://39.98.159.91:8081/repository/maven-releases/</url>
+            <url>http://mvn.jinhuikeji.vip/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>maven-snapshots</id>
             <name>Nexus Snapshot Repository</name>
-            <url>http://39.98.159.91:8081/repository/maven-snapshots/</url>
+            <url>http://mvn.jinhuikeji.vip/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
